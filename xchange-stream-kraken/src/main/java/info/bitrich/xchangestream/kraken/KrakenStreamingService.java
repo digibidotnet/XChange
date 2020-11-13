@@ -13,9 +13,11 @@ import info.bitrich.xchangestream.kraken.dto.enums.KrakenEventType;
 import info.bitrich.xchangestream.kraken.dto.enums.KrakenSubscriptionName;
 import info.bitrich.xchangestream.service.netty.JsonNettyStreamingService;
 import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
+import info.bitrich.xchangestream.service.netty.WebSocketClientCompressionAllowClientNoContextHandler;
 import info.bitrich.xchangestream.service.netty.WebSocketClientHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
+import io.netty.handler.codec.http.websocketx.extensions.WebSocketClientExtensionHandler;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
@@ -60,8 +62,13 @@ public class KrakenStreamingService extends JsonNettyStreamingService {
   }
 
   @Override
-  public boolean processArrayMassageSeparately() {
+  public boolean processArrayMessageSeparately() {
     return false;
+  }
+
+  @Override
+  protected WebSocketClientExtensionHandler getWebSocketClientExtensionHandler() {
+    return WebSocketClientCompressionAllowClientNoContextHandler.INSTANCE;
   }
 
   @Override
