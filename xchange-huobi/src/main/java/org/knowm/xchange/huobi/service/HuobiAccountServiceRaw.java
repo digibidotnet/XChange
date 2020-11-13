@@ -125,7 +125,8 @@ public class HuobiAccountServiceRaw extends HuobiBaseService {
             currency != null ? currency.toLowerCase() : null,
             type.toLowerCase(),
             from,
-            "100",
+            "500",
+            "next", // get latest orders
             exchange.getExchangeSpecification().getApiKey(),
             HuobiDigest.HMAC_SHA_256,
             2,
