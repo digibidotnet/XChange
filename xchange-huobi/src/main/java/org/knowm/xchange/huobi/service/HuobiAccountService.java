@@ -98,7 +98,7 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
   @Override
   public AddressWithTag requestDepositAddressData(Currency currency, String... args) throws IOException {
     HuobiDepositAddressWithTag huobiAddrWithTag = getDepositAddressWithTag(currency.toString());
-    AddressWithTag addressWithTag = new AddressWithTag(huobiAddrWithTag.getAddress(), huobiAddrWithTag.getTag();
+    AddressWithTag addressWithTag = new AddressWithTag(huobiAddrWithTag.getAddress(), huobiAddrWithTag.getTag());
     return addressWithTag;
   }
 }
