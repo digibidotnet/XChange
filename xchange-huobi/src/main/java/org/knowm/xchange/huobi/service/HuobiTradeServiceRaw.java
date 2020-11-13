@@ -1,14 +1,17 @@
 package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order.OrderType;
+import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.exceptions.ExchangeException;
@@ -133,13 +136,17 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
     }
     if (limitOrder.hasFlag(HuobiTradeService.FOK)) type = type + "-fok";
     if (limitOrder.hasFlag(HuobiTradeService.IOC)) type = type + "-ioc";
-
+    // Price rounding
+    CurrencyPairMetaData metadata = exchange.getExchangeMetaData().getCurrencyPairs().get(limitOrder.getCurrencyPair());
+    int quantityScale = metadata.getBaseScale();
+    int priceScale = metadata.getPriceScale();
+    RoundingMode priceRounding = OrderType.BID.equals(limitOrder.getType()) ? RoundingMode.DOWN : RoundingMode.UP;
     HuobiOrderResult result =
         huobi.placeLimitOrder(
             new HuobiCreateOrderRequest(
                 getAccountId(),
-                limitOrder.getOriginalAmount().toString(),
-                limitOrder.getLimitPrice().toString(),
+                limitOrder.getOriginalAmount().setScale(quantityScale, RoundingMode.DOWN).toString(),
+                limitOrder.getLimitPrice().setScale(priceScale, priceRounding).toString(),
                 HuobiUtils.createHuobiCurrencyPair(limitOrder.getCurrencyPair()),
                 type,
                 limitOrder.getUserReference(),
