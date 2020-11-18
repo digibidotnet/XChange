@@ -2,12 +2,13 @@ package org.knowm.xchange.binance.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.Value;
+
 import org.knowm.xchange.binance.BinanceAdapters;
 import org.knowm.xchange.binance.BinanceAuthenticated;
 import org.knowm.xchange.binance.BinanceErrorAdapter;
@@ -24,6 +25,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.IOrderFlags;
 import org.knowm.xchange.dto.marketdata.Trades;
+import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
@@ -48,6 +50,8 @@ import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 import org.knowm.xchange.service.trade.params.orders.OrderQueryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.orders.OrderQueryParams;
 import org.knowm.xchange.utils.Assert;
+
+import lombok.Value;
 
 public class BinanceTradeService extends BinanceTradeServiceRaw implements TradeService {
 
@@ -142,13 +146,23 @@ public class BinanceTradeService extends BinanceTradeServiceRaw implements Trade
       Long recvWindow =
           (Long)
               exchange.getExchangeSpecification().getExchangeSpecificParametersItem("recvWindow");
+      // round quantity according to step_size
+      CurrencyPairMetaData metadata = exchange.getExchangeMetaData().getCurrencyPairs().get(order.getCurrencyPair());
+      // round price according to price scale and market side
+      if (limitPrice != null) {
+        // is a limit order
+        int priceScale = metadata.getPriceScale();
+        RoundingMode roundingMode = org.knowm.xchange.dto.Order.OrderType.BID.equals(order.getType()) ? RoundingMode.DOWN : RoundingMode.UP;
+        limitPrice = limitPrice.setScale(priceScale, roundingMode);
+      }
+      int stepSizeScale = metadata.getBaseScale();
       BinanceNewOrder newOrder =
           newOrder(
               order.getCurrencyPair(),
               BinanceAdapters.convert(order.getType()),
               type,
               tif,
-              order.getOriginalAmount(),
+              order.getOriginalAmount().setScale(stepSizeScale, RoundingMode.DOWN),
               limitPrice,
               getClientOrderId(order),
               stopPrice,

@@ -56,8 +56,7 @@ public class HuobiAdapters {
 
   public static List<Ticker> adaptAllTickers(HuobiAllTicker[] allTickers) {
 
-    return Arrays.stream(allTickers)
-        .filter(
+    return Arrays.stream(allTickers).filter(
             huobiTicker ->
                 !"hb10".equals(huobiTicker.getSymbol()) // Fix on data error retrieved from api
             )
@@ -114,16 +113,21 @@ public class HuobiAdapters {
     BigDecimal minQty =
         metadata == null
             ? null
-            : metadata
-                .getMinimumAmount()
-                .setScale(Integer.parseInt(pair.getAmountPrecision()), RoundingMode.DOWN);
+            : metadata.getMinimumAmount().setScale(pair.getAmountPrecision(), RoundingMode.DOWN);
     FeeTier[] feeTiers = metadata == null ? null : metadata.getFeeTiers();
     return new CurrencyPairMetaData(
-        fee,
-        minQty, // Min amount
-        null, // Max amount
-        new Integer(pair.getPricePrecision()), // Price scale
-        feeTiers);
+        fee, 
+        minQty, 
+        null, 
+        null, 
+        null, 
+        new Integer(pair.getAmountPrecision()), 
+        new Integer(pair.getPricePrecision()), 
+        feeTiers, 
+        null, 
+        null, 
+        true
+     );
   }
 
   private static Currency adaptCurrency(String currency) {
@@ -379,12 +383,20 @@ public class HuobiAdapters {
     }
   }
 
+  /**
+   * List of possible deposit state
+   *
+   * <p>State Description unknown On-chain transfer has not been received confirming On-chain
+   * transfer waits for first confirmation confirmed On-chain transfer confirmed for at least one
+   * block safe Multiple on-chain confirmation happened orphan Confirmed but currently in an orphan
+   * branch
+   */
   private static Status adaptDepostStatus(String state) {
     switch (state) {
       case "confirming":
-      case "safe":
-        return Status.PROCESSING;
       case "confirmed":
+        return Status.PROCESSING;
+      case "safe":
         return Status.COMPLETE;
       case "unknown":
       case "orphan":
