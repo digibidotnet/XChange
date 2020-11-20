@@ -2,7 +2,11 @@ package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.dto.meta.CurrencyMetaData;
+import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.huobi.HuobiUtils;
 import org.knowm.xchange.huobi.dto.account.HuobiAccount;
 import org.knowm.xchange.huobi.dto.account.HuobiBalance;
@@ -150,8 +154,11 @@ public class HuobiAccountServiceRaw extends HuobiBaseService {
   public long createWithdraw(
       String currency, BigDecimal amount, BigDecimal fee, String address, String addressTag)
       throws IOException {
+        // Round amount to the correct scale
+        CurrencyMetaData metadata = exchange.getExchangeMetaData().getCurrencies().get(currency);
+        Integer scale = metadata.getScale(); 
     HuobiCreateWithdrawRequest createWithdrawRequest =
-        new HuobiCreateWithdrawRequest(address, amount, currency.toLowerCase(), fee, addressTag);
+        new HuobiCreateWithdrawRequest(address, amount.setScale(scale, RoundingMode.DOWN), currency.toLowerCase(), fee, addressTag);
     HuobiCreateWithdrawResult createWithdrawResult =
         huobi.createWithdraw(
             createWithdrawRequest,
