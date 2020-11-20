@@ -7,7 +7,6 @@ import java.math.RoundingMode;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
-import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.huobi.HuobiUtils;
 import org.knowm.xchange.huobi.dto.account.HuobiAccount;
 import org.knowm.xchange.huobi.dto.account.HuobiBalance;
