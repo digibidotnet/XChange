@@ -121,7 +121,7 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
     List<List<String>> batches =
         Lists.partition(
             currencyPairs,
-            10); // Batches of 10 to minimize requests to endpoint and to prevent 414 errors
+            10); // Batches of 10 to minimize requests to endpoint and to prevent 414 errors, Huobi seems to also have a cap to # of symbols in request
 
     Map<CurrencyPair, Fee> dynamicTradingFees = new HashMap<>();
     for (List<String> batch : batches) {
