@@ -1,11 +1,14 @@
 package org.knowm.xchange.huobi.service;
 
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -113,17 +116,20 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
   @Override
   public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
     HuobiAssetPair[] huobiAssetPairs = checkResult(huobi.getAssetPairs());
-    StringBuilder builder = new StringBuilder();
-    for (HuobiAssetPair assetPair : huobiAssetPairs) {
-      String symbol = assetPair.getBaseCurrency() + assetPair.getQuoteCurrency(); // eg. btcusdt
-      builder.append(symbol);
-      builder.append(",");
-    }
-    HuobiTransactFeeRate[] transactFeeRates = getTransactFeeRate(builder.toString());
+    List<String> symbols =
+        Arrays.stream(huobiAssetPairs)
+            .map(assetPair -> assetPair.getBaseCurrency() + assetPair.getQuoteCurrency())
+            .collect(Collectors.toList());
+    List<List<String>> batches = Lists.partition(symbols, 400); // Batches of 400 to minimize requests to endpoint and to prevent 414 errors
+
     Map<CurrencyPair, Fee> dynamicTradingFees = new HashMap<>();
-    for (HuobiTransactFeeRate feeRate : transactFeeRates) {
-      Fee fee = new Fee(feeRate.getActualMakerRate(), feeRate.getActualTakerRate());
-      dynamicTradingFees.put(new CurrencyPair(feeRate.getSymbol()), fee);
+    for (List<String> batch : batches) {
+      String concat = StringUtils.join(batch, ",");
+      HuobiTransactFeeRate[] transactFeeRates = getTransactFeeRate(concat);
+      for (HuobiTransactFeeRate feeRate : transactFeeRates) {
+        Fee fee = new Fee(feeRate.getActualMakerRate(), feeRate.getActualTakerRate());
+        dynamicTradingFees.put(new CurrencyPair(feeRate.getSymbol()), fee);
+      }
     }
     return dynamicTradingFees;
   }
