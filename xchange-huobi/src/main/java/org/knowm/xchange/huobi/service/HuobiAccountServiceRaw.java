@@ -74,10 +74,10 @@ public class HuobiAccountServiceRaw extends HuobiBaseService {
     return checkResult(transactFeeRateResult);
   }
 
-  public HuobiTransactFeeRate[] getTransactFeeRate(String currency) throws IOException {
+  public HuobiTransactFeeRate[] getTransactFeeRate(String symbol) throws IOException {
     HuobiTransactFeeRateResult transactFeeRateResult =
         huobi.getTransactFeeRate(
-            currency.toLowerCase(),
+            symbol.toLowerCase(),
             exchange.getExchangeSpecification().getApiKey(),
             HuobiDigest.HMAC_SHA_256,
             2,
