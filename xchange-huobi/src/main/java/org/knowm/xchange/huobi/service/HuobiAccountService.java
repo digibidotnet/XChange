@@ -3,7 +3,6 @@ package org.knowm.xchange.huobi.service;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +17,10 @@ import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.huobi.HuobiAdapters;
+import org.knowm.xchange.huobi.HuobiUtils;
 import org.knowm.xchange.huobi.dto.account.HuobiAccount;
 import org.knowm.xchange.huobi.dto.account.HuobiDepositAddress;
 import org.knowm.xchange.huobi.dto.account.HuobiTransactFeeRate;
-import org.knowm.xchange.huobi.dto.marketdata.HuobiAssetPair;
 import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.DefaultWithdrawFundsParams;
 import org.knowm.xchange.service.trade.params.HistoryParamsFundingType;
@@ -115,12 +114,14 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
 
   @Override
   public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
-    HuobiAssetPair[] huobiAssetPairs = checkResult(huobi.getAssetPairs());
-    List<String> symbols =
-        Arrays.stream(huobiAssetPairs)
-            .map(assetPair -> assetPair.getBaseCurrency() + assetPair.getQuoteCurrency())
+    List<String> currencyPairs =
+        exchange.getExchangeSymbols().stream()
+            .map(cp -> cp.base.toString() + cp.counter.toString())
             .collect(Collectors.toList());
-    List<List<String>> batches = Lists.partition(symbols, 400); // Batches of 400 to minimize requests to endpoint and to prevent 414 errors
+    List<List<String>> batches =
+        Lists.partition(
+            currencyPairs,
+            10); // Batches of 10 to minimize requests to endpoint and to prevent 414 errors
 
     Map<CurrencyPair, Fee> dynamicTradingFees = new HashMap<>();
     for (List<String> batch : batches) {
@@ -128,7 +129,7 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
       HuobiTransactFeeRate[] transactFeeRates = getTransactFeeRate(concat);
       for (HuobiTransactFeeRate feeRate : transactFeeRates) {
         Fee fee = new Fee(feeRate.getActualMakerRate(), feeRate.getActualTakerRate());
-        dynamicTradingFees.put(new CurrencyPair(feeRate.getSymbol()), fee);
+        dynamicTradingFees.put(HuobiUtils.translateHuobiCurrencyPair(feeRate.getSymbol()), fee);
       }
     }
     return dynamicTradingFees;
