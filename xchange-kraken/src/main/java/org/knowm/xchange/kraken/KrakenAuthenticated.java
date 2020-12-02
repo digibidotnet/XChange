@@ -228,6 +228,7 @@ public interface KrakenAuthenticated extends Kraken {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   KrakenTradeVolumeResult tradeVolume(
       @FormParam("pair") String assetPairs,
+      @FormParam("fee-info") String feeInfo,
       @HeaderParam("API-Key") String apiKey,
       @HeaderParam("API-Sign") ParamsDigest signer,
       @FormParam("nonce") SynchronizedValueFactory<Long> nonce)
