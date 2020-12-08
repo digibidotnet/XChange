@@ -210,7 +210,7 @@ public interface AccountService extends BaseService {
    * Gets the trading fee for specific currency pairs as determined by the given exchange's rules for
    * adjusting fees by recent volume traded.
    * 
-   * @param currencyPair Currency Pairs to request trade fees for
+   * @param currencyPairs Currency Pairs to request trade fees for
    * @return A Knowm Fee object that includes both maker and taker fees
    * @throws ExchangeException - Indication that the exchange reported some kind of error with the
    *     request or response
@@ -220,7 +220,7 @@ public interface AccountService extends BaseService {
    *     requested function or data, but it has not yet been implemented
    * @throws IOException - Indication that a networking error occurred while fetching JSON data
    */
-  default Map<CurrencyPair, Fee> getDynamicTradingFeeForPairs(CurrencyPair[] currencyPair) throws IOException {
+  default Map<CurrencyPair, Fee> getDynamicTradingFeeForPairs(CurrencyPair[] currencyPairs) throws IOException {
     throw new NotYetImplementedForExchangeException("getDynamicTradingFees");
   }
 }
