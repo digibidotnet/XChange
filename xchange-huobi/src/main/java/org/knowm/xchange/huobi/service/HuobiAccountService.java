@@ -117,7 +117,7 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
 
   @Override
   public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
-    CurrencyPair[] allCurrencyPairs = (CurrencyPair[]) exchange.getExchangeSymbols().toArray();
+    CurrencyPair[] allCurrencyPairs = exchange.getExchangeSymbols().toArray(new CurrencyPair[0]);
     return getDynamicTradingFeeForPairs(allCurrencyPairs);
   }
 
