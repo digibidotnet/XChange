@@ -182,9 +182,14 @@ public class KrakenAccountService extends KrakenAccountServiceRaw implements Acc
 
   @Override
   public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
-    List<CurrencyPair> currencyPairs = exchange.getExchangeSymbols();
-    KrakenTradeVolume tradeVolume = getTradeVolume(true, currencyPairs.toArray(new CurrencyPair[0])); // .toArray used for List to varargs parameter
+    CurrencyPair[] currencyPairs = exchange.getExchangeSymbols().toArray(new CurrencyPair[0]);
+    return getDynamicTradingFeeForPairs(currencyPairs);
+  }
+
+  @Override
+  public Map<CurrencyPair, Fee> getDynamicTradingFeeForPairs(CurrencyPair[] currencyPairs) throws IOException {
     Map<CurrencyPair, Fee> dynamicTradingFees = new HashMap<>();
+    KrakenTradeVolume tradeVolume = getTradeVolume(true, currencyPairs);
     for (CurrencyPair cp : currencyPairs) {
       BigDecimal takerFee = BigDecimal.ZERO;
       BigDecimal makerFee = BigDecimal.ZERO;
