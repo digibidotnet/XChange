@@ -114,6 +114,8 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
         new AddressWithTag(huobiAddrWithTag.getAddress(), huobiAddrWithTag.getAddressTag());
     return addressWithTag;
   }
+
+  @Override
   public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
     CurrencyPair[] allCurrencyPairs = (CurrencyPair[]) exchange.getExchangeSymbols().toArray();
     return getDynamicTradingFeeForPairs(allCurrencyPairs);
