@@ -2,16 +2,28 @@ package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
+
+import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.AddressWithTag;
+import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.huobi.HuobiAdapters;
+import org.knowm.xchange.huobi.HuobiUtils;
 import org.knowm.xchange.huobi.dto.account.HuobiAccount;
 import org.knowm.xchange.huobi.dto.account.HuobiDepositAddress;
+import org.knowm.xchange.huobi.dto.account.HuobiTransactFeeRate;
 import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.DefaultWithdrawFundsParams;
 import org.knowm.xchange.service.trade.params.HistoryParamsFundingType;
@@ -101,5 +113,22 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
     AddressWithTag addressWithTag =
         new AddressWithTag(huobiAddrWithTag.getAddress(), huobiAddrWithTag.getAddressTag());
     return addressWithTag;
+  }
+
+  @Override
+  public Map<CurrencyPair, Fee> getDynamicTradingFeeForPairs(CurrencyPair[] currencyPairs) throws IOException {
+    List<String> cps = Arrays.stream(currencyPairs).map(cp -> cp.base.toString() + cp.counter.toString()).collect(Collectors.toList());
+    List<List<String>> batches = Lists.partition(cps, 10); // Batches of 10 to minimize requests to endpoint and to prevent 414 errors, Huobi seems to also have a cap to # of symbols in request
+
+    Map<CurrencyPair, Fee> dynamicTradingFees = new HashMap<>();
+    for (List<String> batch : batches) {
+      String concat = StringUtils.join(batch, ",");
+      HuobiTransactFeeRate[] transactFeeRates = getTransactFeeRate(concat);
+      for (HuobiTransactFeeRate feeRate : transactFeeRates) {
+        Fee fee = new Fee(feeRate.getActualMakerRate(), feeRate.getActualTakerRate());
+        dynamicTradingFees.put(HuobiUtils.translateHuobiCurrencyPair(feeRate.getSymbol()), fee);
+      }
+    }
+    return dynamicTradingFees;
   }
 }
