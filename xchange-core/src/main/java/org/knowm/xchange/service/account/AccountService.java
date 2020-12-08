@@ -221,6 +221,6 @@ public interface AccountService extends BaseService {
    * @throws IOException - Indication that a networking error occurred while fetching JSON data
    */
   default Map<CurrencyPair, Fee> getDynamicTradingFeeForPairs(CurrencyPair[] currencyPairs) throws IOException {
-    throw new NotYetImplementedForExchangeException("getDynamicTradingFees");
+    throw new NotYetImplementedForExchangeException("getDynamicTradingFeeForPairs");
   }
 }
