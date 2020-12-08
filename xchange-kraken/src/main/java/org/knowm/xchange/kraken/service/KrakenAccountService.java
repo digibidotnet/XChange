@@ -5,17 +5,22 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.AccountInfo;
+import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.kraken.KrakenAdapters;
+import org.knowm.xchange.kraken.KrakenUtils;
 import org.knowm.xchange.kraken.dto.account.KrakenDepositAddress;
 import org.knowm.xchange.kraken.dto.account.KrakenLedger;
 import org.knowm.xchange.kraken.dto.account.KrakenTradeBalanceInfo;
+import org.knowm.xchange.kraken.dto.account.KrakenTradeVolume;
 import org.knowm.xchange.kraken.dto.account.LedgerType;
 import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamsTimeSpan;
@@ -173,6 +178,26 @@ public class KrakenAccountService extends KrakenAccountServiceRaw implements Acc
       return KrakenAdapters.adaptFundingHistory(
           getKrakenLedgerInfo(ledgerType, startTime, endTime, offset, currencies));
     }
+  }
+
+  @Override
+  public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
+    List<CurrencyPair> currencyPairs = exchange.getExchangeSymbols();
+    KrakenTradeVolume tradeVolume = getTradeVolume(true, currencyPairs.toArray(new CurrencyPair[0])); // .toArray used for List to varargs parameter
+    Map<CurrencyPair, Fee> dynamicTradingFees = new HashMap<>();
+    for (CurrencyPair cp : currencyPairs) {
+      BigDecimal takerFee = BigDecimal.ZERO;
+      BigDecimal makerFee = BigDecimal.ZERO;
+      String krakenCp = KrakenUtils.createKrakenCurrencyPair(cp);
+      if (tradeVolume.getFees().get(krakenCp) != null) {
+        takerFee = tradeVolume.getFees().get(krakenCp).getFee();
+      }
+      if (tradeVolume.getFeesMaker().get(krakenCp) != null) {
+        makerFee = tradeVolume.getFeesMaker().get(krakenCp).getFee();
+      }
+      dynamicTradingFees.put(cp, new Fee(makerFee, takerFee));
+    }
+    return dynamicTradingFees;
   }
 
   public static class KrakenFundingHistoryParams extends DefaultTradeHistoryParamsTimeSpan

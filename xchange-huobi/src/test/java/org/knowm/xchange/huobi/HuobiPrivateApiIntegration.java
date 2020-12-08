@@ -6,7 +6,13 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
-import org.junit.*;
+import java.util.Map;
+
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.currency.Currency;
@@ -14,6 +20,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.Balance;
+import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
@@ -119,6 +126,14 @@ public class HuobiPrivateApiIntegration {
   public void cancelOrderTest() throws IOException {
     TradeService tradeService = exchange.getTradeService();
     boolean result = tradeService.cancelOrder("2134551697");
+    System.out.println(result);
+  }
+
+  @Test
+  @Ignore("Manual unit testing")
+  public void getDynamicTradingFeesTest() throws IOException {
+    AccountService accountService = exchange.getAccountService();
+    Map<CurrencyPair, Fee> result = accountService.getDynamicTradingFees();
     System.out.println(result);
   }
 }

@@ -277,6 +277,17 @@ public class KrakenAccountServiceRaw extends KrakenBaseService {
     KrakenTradeVolumeResult result =
         kraken.tradeVolume(
             delimitAssetPairs(currencyPairs),
+            null,
+            exchange.getExchangeSpecification().getApiKey(),
+            signatureCreator,
+            exchange.getNonceFactory());
+    return checkResult(result);
+  }
+  public KrakenTradeVolume getTradeVolume(Boolean feeInfo, CurrencyPair... currencyPairs) throws IOException {
+    KrakenTradeVolumeResult result =
+        kraken.tradeVolume(
+            delimitAssetPairs(currencyPairs),
+            feeInfo.toString(),
             exchange.getExchangeSpecification().getApiKey(),
             signatureCreator,
             exchange.getNonceFactory());
