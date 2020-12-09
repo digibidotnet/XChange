@@ -46,12 +46,17 @@ public class CoinbaseProAccountService extends CoinbaseProAccountServiceRaw
 
   @Override
   public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
+    CurrencyPair[] pairs = exchange.getExchangeSymbols().toArray(new CurrencyPair[0]);
+    return getDynamicTradingFeeForPairs(pairs);
+  }
+
+  @Override
+  public Map<CurrencyPair, Fee> getDynamicTradingFeeForPairs(CurrencyPair[] currencyPairs) throws IOException {
     CoinbaseProFee fees = getCoinbaseProFees();
-
     Map<CurrencyPair, Fee> tradingFees = new HashMap<>();
-    List<CurrencyPair> pairs = exchange.getExchangeSymbols();
-
-    pairs.forEach(pair -> tradingFees.put(pair, new Fee(fees.getMakerRate(), fees.getTakerRate())));
+    for (CurrencyPair cp : currencyPairs) {
+      tradingFees.put(cp, new Fee(fees.getMakerRate(), fees.getTakerRate()));
+    }
     return tradingFees;
   }
 

@@ -88,6 +88,16 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
   @Override
   public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
     try {
+      CurrencyPair[] pairs = exchange.getExchangeSymbols().toArray(new CurrencyPair[0]);
+      return getDynamicTradingFeeForPairs(pairs);
+    } catch (BinanceException e) {
+      throw BinanceErrorAdapter.adapt(e);
+    }
+  }
+
+  @Override
+  public Map<CurrencyPair, Fee> getDynamicTradingFeeForPairs(CurrencyPair[] currencyPairs) throws IOException {
+    try {
       BinanceAccountInformation acc = account();
       BigDecimal makerFee =
           acc.makerCommission.divide(new BigDecimal("10000"), 4, RoundingMode.UNNECESSARY);
@@ -95,9 +105,9 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
           acc.takerCommission.divide(new BigDecimal("10000"), 4, RoundingMode.UNNECESSARY);
 
       Map<CurrencyPair, Fee> tradingFees = new HashMap<>();
-      List<CurrencyPair> pairs = exchange.getExchangeSymbols();
-
-      pairs.forEach(pair -> tradingFees.put(pair, new Fee(makerFee, takerFee)));
+      for (CurrencyPair cp : currencyPairs) {
+        tradingFees.put(cp, new Fee(makerFee, takerFee));
+      }
 
       return tradingFees;
     } catch (BinanceException e) {
