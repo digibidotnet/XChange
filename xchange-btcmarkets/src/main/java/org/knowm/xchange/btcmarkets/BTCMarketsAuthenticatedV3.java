@@ -48,8 +48,8 @@ public interface BTCMarketsAuthenticatedV3 {
       @QueryParam("limit") Integer limit)
       throws BTCMarketsException, IOException;
 
-    @GET
-    @Path("accounts/me/trading-fees")
+  @GET
+  @Path("accounts/me/trading-fees")
   BTCMarketsTradingFeesResponse tradingFees(
       @HeaderParam("BM-AUTH-APIKEY") String publicKey,
       @HeaderParam("BM-AUTH-TIMESTAMP") SynchronizedValueFactory<Long> nonceFactory,
