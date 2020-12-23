@@ -17,7 +17,7 @@ public class BTCMarketsTradingFeesResponse {
     this.feeByMarkets = feeByMarkets;
   }
 
-  class FeeByMarket {
+  public static class FeeByMarket {
     public final BigDecimal makerFeeRate;
     public final BigDecimal takerFeeRate;
     public final String marketId;
