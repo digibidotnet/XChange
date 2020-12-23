@@ -143,6 +143,7 @@ public class OkexAccountService extends OkexAccountServiceRaw implements Account
     List<OkexSpotInstrument> instruments =  okex.getAllSpotInstruments();
     Map<CurrencyPair, Fee> tradingFees = new HashMap<>();
     for (OkexSpotInstrument instrument : instruments) {
+      // TODO: Improve this, this takes way too long
       String cp = String.format("%s-%s", instrument.getBaseCurrency(), instrument.getQuoteCurrency());
       OkexTradeFee okexTradeFee = getTradeFee(null, cp);
       Fee tradeFee = new Fee(okexTradeFee.getMaker(), okexTradeFee.getTaker());
