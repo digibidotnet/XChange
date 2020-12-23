@@ -50,7 +50,7 @@ public interface BTCMarketsAuthenticatedV3 {
 
     @GET
     @Path("accounts/me/trading-fees")
-    List<BTCMarketsTradingFeesResponse> tradingFees(
+  BTCMarketsTradingFeesResponse tradingFees(
       @HeaderParam("BM-AUTH-APIKEY") String publicKey,
       @HeaderParam("BM-AUTH-TIMESTAMP") SynchronizedValueFactory<Long> nonceFactory,
       @HeaderParam("BM-AUTH-SIGNATURE") BTCMarketsDigestV3 signer)
