@@ -14,6 +14,7 @@ import org.knowm.xchange.okcoin.v3.dto.account.OkexCurrencyInformation;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexDepositRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexFundingAccountRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexSpotAccountRecord;
+import org.knowm.xchange.okcoin.v3.dto.account.OkexTradeFee;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexWithdrawalRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexWithdrawalRequest;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexWithdrawalResponse;
@@ -82,6 +83,10 @@ public class OkexAccountServiceRaw extends OkexBaseService {
 
   public List<OkexDepositRecord> recentDepositHistory() throws IOException {
     return okex.recentDepositHistory(apikey, digest, timestamp(), passphrase);
+  }
+
+  public OkexTradeFee getTradeFee(String category, String instrumentId) throws IOException {
+    return okex.getTradeFee(apikey, digest, timestamp(), passphrase, category, instrumentId);
   }
 
   /** ******************************** Futures Account API ********************************* */

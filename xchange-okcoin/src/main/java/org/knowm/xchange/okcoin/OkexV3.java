@@ -21,6 +21,7 @@ import org.knowm.xchange.okcoin.v3.dto.account.OkexCurrencyInformation;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexDepositRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexFundingAccountRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexSpotAccountRecord;
+import org.knowm.xchange.okcoin.v3.dto.account.OkexTradeFee;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexWithdrawalRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexWithdrawalRequest;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexWithdrawalResponse;
@@ -290,6 +291,17 @@ public interface OkexV3 {
   OkexOrderBook getOrderBook(
       @PathParam("instrument_id") String instrumentId, @QueryParam("size") int size)
       throws IOException, OkexException;
+
+  @GET
+  @Path("/spot/v3/trade_fee")
+  OkexTradeFee getTradeFee(
+    @HeaderParam(OK_ACCESS_KEY) String apiKey,
+    @HeaderParam(OK_ACCESS_SIGN) ParamsDigest signature,
+    @HeaderParam(OK_ACCESS_TIMESTAMP) String timestamp,
+    @HeaderParam(OK_ACCESS_PASSPHRASE) String passphrase,
+    @QueryParam("category") String category,
+    @QueryParam("instrument_id") String instrumentId
+  ) throws IOException, OkexException;
 
   /** ******************************* Futures Trading API ********************************* */
   @GET

@@ -5,12 +5,16 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.Balance;
+import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.FundingRecord.Type;
 import org.knowm.xchange.dto.account.Wallet;
@@ -19,8 +23,10 @@ import org.knowm.xchange.okcoin.OkexAdaptersV3;
 import org.knowm.xchange.okcoin.OkexExchangeV3;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexFundingAccountRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexSpotAccountRecord;
+import org.knowm.xchange.okcoin.v3.dto.account.OkexTradeFee;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexWithdrawalRequest;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexWithdrawalResponse;
+import org.knowm.xchange.okcoin.v3.dto.marketdata.OkexSpotInstrument;
 import org.knowm.xchange.service.account.AccountService;
 import org.knowm.xchange.service.trade.params.DefaultWithdrawFundsParams;
 import org.knowm.xchange.service.trade.params.HistoryParamsFundingType;
@@ -130,5 +136,21 @@ public class OkexAccountService extends OkexAccountServiceRaw implements Account
     }
     Collections.sort(result, (r1, r2) -> r1.getDate().compareTo(r2.getDate()));
     return result;
+  }
+
+  @Override
+  public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
+    List<OkexSpotInstrument> instruments =  okex.getAllSpotInstruments();
+    Map<CurrencyPair, Fee> tradingFees = new HashMap<>();
+    for (OkexSpotInstrument instrument : instruments) {
+      String cp = String.format("%s-%s", instrument.getBaseCurrency(), instrument.getQuoteCurrency());
+      OkexTradeFee okexTradeFee = getTradeFee(null, cp);
+      Fee tradeFee = new Fee(okexTradeFee.getMaker(), okexTradeFee.getTaker());
+
+      CurrencyPair currencyPair = new CurrencyPair(instrument.getBaseCurrency(), instrument.getQuoteCurrency());
+      tradingFees.put(currencyPair, tradeFee);
+    }
+
+    return tradingFees;
   }
 }
