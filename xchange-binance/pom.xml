@@ -42,6 +42,11 @@
 		    <plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-surefire-plugin</artifactId>
+		    <configuration>
+		        <excludes>
+		            <exclude>src/test/xchange/binance/**</exclude>
+		        </excludes>
+		    </configuration>
 		    <executions>
 		        <execution>
 		            <id>single-thread-test</id>
@@ -51,7 +56,7 @@
 		            </goals>
 		            <configuration>
                         <includes>
-                            <include>**/*.java</include>
+                            <include>src/test/xchange/binance/**</include>
                         </includes>
                         <forkCount>1</forkCount>
 		                <threadCount>1</threadCount>
