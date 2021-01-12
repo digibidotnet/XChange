@@ -47,7 +47,8 @@
 		            <exclude>src/test/java/org/knowm/xchange/binance/service/marketdata/MarketDataServiceIntegration.java</exclude>
 		            <exclude>src/test/java/org/knowm/xchange/binance/service/marketdata/MarketDataServiceResilienceTest.java</exclude>
 		        </excludes>
-		        <parallel>classes</parallel>
+		        <parallel>all</parallel>
+		        <useUnlimitedThreads>true</useUnlimitedThreads>
 		    </configuration>
 		
 		    <executions>
