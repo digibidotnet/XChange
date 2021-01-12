@@ -1,16 +1,15 @@
 package org.knowm.xchange.huobi.service;
 
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.AddressWithTag;
@@ -29,8 +28,6 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrency;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamsIdSpan;
 import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
-
-import com.google.common.collect.Lists;
 
 public class HuobiAccountService extends HuobiAccountServiceRaw implements AccountService {
 
@@ -117,14 +114,16 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
 
   @Override
   public Map<CurrencyPair, Fee> getDynamicTradingFees() throws IOException {
-    CurrencyPair[] allCurrencyPairs = exchange.getExchangeSymbols().toArray(new CurrencyPair[0]);
-    return getDynamicTradingFeeForPairs(allCurrencyPairs);
-  }
+    List<String> currencyPairs =
+        exchange.getExchangeSymbols().stream()
+            .map(cp -> cp.base.toString() + cp.counter.toString())
+            .collect(Collectors.toList());
+    List<List<String>> batches =
+        Lists.partition(
+            currencyPairs,
+            10); // Batches of 10 to minimize requests to endpoint and to prevent 414 errors, Huobi
+                 // seems to also have a cap to # of symbols in request
 
-  @Override
-  public Map<CurrencyPair, Fee> getDynamicTradingFeeForPairs(CurrencyPair[] currencyPairs) throws IOException {
-    List<String> cps = Arrays.stream(currencyPairs).map(cp -> cp.base.toString() + cp.counter.toString()).collect(Collectors.toList());
-    List<List<String>> batches = Lists.partition(cps, 10); // Batches of 10 to minimize requests to endpoint and to prevent 414 errors, Huobi seems to also have a cap to # of symbols in request
     Map<CurrencyPair, Fee> dynamicTradingFees = new HashMap<>();
     for (List<String> batch : batches) {
       String concat = StringUtils.join(batch, ",");
