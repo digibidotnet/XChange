@@ -3,16 +3,14 @@ package org.knowm.xchange.huobi.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
-
 import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchange.Exchange;
-import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.AddressWithTag;
@@ -31,6 +29,8 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrency;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamsIdSpan;
 import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
+
+import com.google.common.collect.Lists;
 
 public class HuobiAccountService extends HuobiAccountServiceRaw implements AccountService {
 
