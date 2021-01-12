@@ -42,15 +42,6 @@
 		    <plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-surefire-plugin</artifactId>
-		    <configuration>
-		        <excludes>
-		            <exclude>src/test/java/org/knowm/xchange/binance/service/marketdata/MarketDataServiceIntegration.java</exclude>
-		            <exclude>src/test/java/org/knowm/xchange/binance/service/marketdata/MarketDataServiceResilienceTest.java</exclude>
-		        </excludes>
-		        <parallel>all</parallel>
-		        <useUnlimitedThreads>true</useUnlimitedThreads>
-		    </configuration>
-		
 		    <executions>
 		        <execution>
 		            <id>single-thread-test</id>
@@ -59,10 +50,10 @@
 		                <goal>test</goal>
 		            </goals>
 		            <configuration>
-		                <includes>
-		                    <include>src/test/java/org/knowm/xchange/binance/service/marketdata/MarketDataServiceIntegration.java</include>
-		                    <include>src/test/java/org/knowm/xchange/binance/service/marketdata/MarketDataServiceResilienceTest.java</include>
-		                </includes>
+                        <includes>
+                            <include>**/*.java</include>
+                        </includes>
+                        <forkCount>1</forkCount>
 		                <threadCount>1</threadCount>
 		            </configuration>
 		        </execution>
