@@ -129,7 +129,8 @@ public class HuobiAccountService extends HuobiAccountServiceRaw implements Accou
       String concat = StringUtils.join(batch, ",");
       HuobiTransactFeeRate[] transactFeeRates = getTransactFeeRate(concat);
       for (HuobiTransactFeeRate feeRate : transactFeeRates) {
-        Fee fee = new Fee(feeRate.getActualMakerRate(), feeRate.getActualTakerRate());
+        // Rates are given in decimal form, convert to percentages by multiplying 100
+        Fee fee = new Fee(feeRate.getActualMakerRate().multiply(new BigDecimal(100)), feeRate.getActualTakerRate().multiply(new BigDecimal(100)));
         dynamicTradingFees.put(HuobiUtils.translateHuobiCurrencyPair(feeRate.getSymbol()), fee);
       }
     }
