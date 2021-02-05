@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 
-public final class Fee implements Serializable {
+public class Fee implements Serializable {
 
   private static final long serialVersionUID = -6235230375777573680L;
 
@@ -28,10 +28,19 @@ public final class Fee implements Serializable {
     this.isPercentage = null;
   }
 
-  public Fee(BigDecimal makerFee, BigDecimal takerFee, Boolean isPercentage) {
+  // Use static contructors below to specify isPercentage. (See: `newPercentageFee` & `newDecimalFee`)
+  private Fee(BigDecimal makerFee, BigDecimal takerFee, Boolean isPercentage) {
     this.makerFee = makerFee;
     this.takerFee = takerFee;
     this.isPercentage = isPercentage;
+  }
+
+  public static Fee newPercentageFee(BigDecimal makerFee, BigDecimal takerFee) {
+    return new Fee(makerFee, takerFee, true);
+  }
+  
+  public static Fee newDecimalFee(BigDecimal makerFee, BigDecimal takerFee) {
+    return new Fee(makerFee, takerFee, false);
   }
 
   public BigDecimal getMakerFee() {
