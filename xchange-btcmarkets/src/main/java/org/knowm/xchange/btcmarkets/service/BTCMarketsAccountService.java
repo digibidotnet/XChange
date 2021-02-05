@@ -84,7 +84,7 @@ public class BTCMarketsAccountService extends BTCMarketsAccountServiceRaw
     for (BTCMarketsTradingFeesResponse.FeeByMarket feeByMarket : response.feeByMarkets) {
       String[] splitMarketId = feeByMarket.marketId.split("-"); // BTC-AUD
       CurrencyPair cp = new CurrencyPair(splitMarketId[0], splitMarketId[1]);
-      Fee fee = new Fee(feeByMarket.makerFeeRate, feeByMarket.takerFeeRate);
+      Fee fee = Fee.newDecimalFee(feeByMarket.makerFeeRate, feeByMarket.takerFeeRate);
       
       dynamicTradingFees.put(cp, fee);
     }
