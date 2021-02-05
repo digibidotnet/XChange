@@ -29,9 +29,9 @@ public final class Fee implements Serializable {
   }
 
   public Fee(BigDecimal makerFee, BigDecimal takerFee, Boolean isPercentage) {
-    this.isPercentage = isPercentage;
     this.makerFee = makerFee;
     this.takerFee = takerFee;
+    this.isPercentage = isPercentage;
   }
 
   public BigDecimal getMakerFee() {
