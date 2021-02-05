@@ -200,7 +200,7 @@ public class KrakenAccountService extends KrakenAccountServiceRaw implements Acc
       if (tradeVolume.getFeesMaker().get(krakenCp) != null) {
         makerFee = tradeVolume.getFeesMaker().get(krakenCp).getFee();
       }
-      dynamicTradingFees.put(cp, new Fee(makerFee, takerFee));
+      dynamicTradingFees.put(cp, Fee.newPercentageFee(makerFee, takerFee));
     }
     return dynamicTradingFees;
   }
