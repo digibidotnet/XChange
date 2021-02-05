@@ -19,6 +19,7 @@ public class Fee implements Serializable {
   @JsonProperty("taker_fee")
   private final BigDecimal takerFee;
 
+  // Is the few in percentage form or decimal form?
   @JsonProperty("is_percentage")
   private final Boolean isPercentage;
 
@@ -39,6 +40,7 @@ public class Fee implements Serializable {
     return new Fee(makerFee, takerFee, true);
   }
   
+  // Create fee in decimal representation of a percentage
   public static Fee newDecimalFee(BigDecimal makerFee, BigDecimal takerFee) {
     return new Fee(makerFee, takerFee, false);
   }
