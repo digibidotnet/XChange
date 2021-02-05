@@ -1,10 +1,15 @@
 package org.knowm.xchange.dto.account;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.Objects;
 
-public final class Fee implements Serializable {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
+
+public class Fee implements Serializable {
 
   private static final long serialVersionUID = -6235230375777573680L;
 
@@ -14,9 +19,30 @@ public final class Fee implements Serializable {
   @JsonProperty("taker_fee")
   private final BigDecimal takerFee;
 
+  // Is the few in percentage form or decimal form?
+  @JsonProperty("is_percentage")
+  private final Boolean isPercentage;
+
   public Fee(BigDecimal makerFee, BigDecimal takerFee) {
     this.makerFee = makerFee;
     this.takerFee = takerFee;
+    this.isPercentage = null;
+  }
+
+  // Use static contructors below to specify isPercentage. (See: `newPercentageFee` & `newDecimalFee`)
+  private Fee(BigDecimal makerFee, BigDecimal takerFee, Boolean isPercentage) {
+    this.makerFee = makerFee;
+    this.takerFee = takerFee;
+    this.isPercentage = isPercentage;
+  }
+
+  public static Fee newPercentageFee(BigDecimal makerFee, BigDecimal takerFee) {
+    return new Fee(makerFee, takerFee, true);
+  }
+  
+  // Create fee in decimal representation of a percentage
+  public static Fee newDecimalFee(BigDecimal makerFee, BigDecimal takerFee) {
+    return new Fee(makerFee, takerFee, false);
   }
 
   public BigDecimal getMakerFee() {
@@ -27,9 +53,78 @@ public final class Fee implements Serializable {
     return takerFee;
   }
 
+  public Boolean getIsPercentage() {
+    return isPercentage;
+  }
+
+  public BigDecimal getMakerFeeDecimal() {
+    if (isPercentage == null) {
+      throw new NotYetImplementedForExchangeException(
+          "isPercentage not specified for Fee, unable to discern between percentage or decimal value");
+    }
+
+    if (isPercentage) {
+      // is percentage, convert to decimal
+      BigDecimal hundred = new BigDecimal("100");
+      return makerFee.divide(hundred, MathContext.DECIMAL32);
+    } else {
+      // is decimal
+      return makerFee;
+    }
+  }
+
+  public BigDecimal getTakerFeeDecimal() {
+    if (isPercentage == null) {
+      throw new NotYetImplementedForExchangeException(
+          "isPercentage not specified for Fee, unable to discern between percentage or decimal value");
+    }
+
+    if (isPercentage) {
+      // is percentage, convert to decimal
+      BigDecimal hundred = new BigDecimal("100");
+      return takerFee.divide(hundred, MathContext.DECIMAL32);
+    } else {
+      // is decimal
+      return takerFee;
+    }
+  }
+
+  public BigDecimal getMakerFeePercentage() {
+    if (isPercentage == null) {
+      throw new NotYetImplementedForExchangeException(
+          "isPercentage not specified for Fee, unable to discern between percentage or decimal value");
+    }
+
+    if (isPercentage) {
+      // is percentage
+      return makerFee;
+    } else {
+      // is decimal, convert to percentage
+      BigDecimal hundred = new BigDecimal("100");
+      return makerFee.multiply(hundred, MathContext.DECIMAL32);
+    }
+  }
+
+  public BigDecimal getTakerFeePercentage() {
+    if (isPercentage == null) {
+      throw new NotYetImplementedForExchangeException(
+          "isPercentage not specified for Fee, unable to discern between percentage or decimal value");
+    }
+
+    if (isPercentage) {
+      // is percentage
+      return takerFee;
+    } else {
+      // is decimal, convert to percentage
+      BigDecimal hundred = new BigDecimal("100");
+      return takerFee.multiply(hundred, MathContext.DECIMAL32);
+    }
+  }
+
   @Override
   public String toString() {
-    return "Fee [makerFee=" + makerFee + ", takerFee=" + takerFee + "]";
+    return "{" + " makerFee='" + makerFee + "'" + ", takerFee='" + takerFee + "'" + ", isPercentage='" + isPercentage
+        + "'" + "}";
   }
 
   @Override
@@ -44,11 +139,13 @@ public final class Fee implements Serializable {
       return false;
     }
     Fee other = (Fee) obj;
-    return other.makerFee.equals(makerFee) && other.takerFee.equals(takerFee);
+    return other.makerFee.equals(makerFee) && other.takerFee.equals(takerFee)
+        && other.isPercentage.equals(isPercentage);
   }
 
   @Override
   public int hashCode() {
-    return makerFee.hashCode() + 31 * takerFee.hashCode();
+    return Objects.hash(makerFee, takerFee, isPercentage);
   }
+  
 }

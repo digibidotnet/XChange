@@ -106,7 +106,7 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
 
       Map<CurrencyPair, Fee> tradingFees = new HashMap<>();
       for (CurrencyPair cp : currencyPairs) {
-        tradingFees.put(cp, new Fee(makerFee, takerFee));
+        tradingFees.put(cp, Fee.newPercentageFee(makerFee, takerFee));
       }
 
       return tradingFees;

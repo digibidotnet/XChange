@@ -55,7 +55,7 @@ public class CoinbaseProAccountService extends CoinbaseProAccountServiceRaw
     CoinbaseProFee fees = getCoinbaseProFees();
     Map<CurrencyPair, Fee> tradingFees = new HashMap<>();
     for (CurrencyPair cp : currencyPairs) {
-      tradingFees.put(cp, new Fee(fees.getMakerRate(), fees.getTakerRate()));
+      tradingFees.put(cp, Fee.newDecimalFee(fees.getMakerRate(), fees.getTakerRate()));
     }
     return tradingFees;
   }
